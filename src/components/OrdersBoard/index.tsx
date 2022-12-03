@@ -7,10 +7,13 @@ interface OrdersBoardProps {
   icon: string;
   title: string;
   orders: Order[];
+  getOrders: () => void;
+  changeStatusInProduction: (OrderId: string) => void;
+  changeStatusDone: (OrderId: string) => void;
 };
 
 
-export function OrdersBoard({ icon, title, orders }: OrdersBoardProps) {
+export function OrdersBoard({ icon, title, orders, getOrders, changeStatusInProduction, changeStatusDone}: OrdersBoardProps) {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<null | Order>(null);
@@ -28,7 +31,14 @@ export function OrdersBoard({ icon, title, orders }: OrdersBoardProps) {
 
   return (
     <Board>
-      <OrderModal order={selectedOrder} visible={isModalVisible} handleCloseModal={handleCloseModal} />
+      <OrderModal 
+        order={selectedOrder} 
+        visible={isModalVisible} 
+        handleCloseModal={handleCloseModal} 
+        getOrders={getOrders} 
+        changeStatusInProduction={changeStatusInProduction}
+        changeStatusDone={changeStatusDone}
+        />
       <header>
         <span>{icon}</span>
         <strong>{title}</strong>

@@ -1,65 +1,68 @@
 import { Order } from "../../types/Oder";
 import { OrdersBoard } from "../OrdersBoard";
 import { Container } from "./styles";
-import axios, { Axios } from 'axios';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { api } from "../../utils/api";
+
 
 export function Orders() {
 
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [atualize, setAtualize] = useState(true);
+
+
   useEffect(() => {
     getOrders();
-  }, [])
+  }, [atualize]);
 
   function getOrders() {
-    fetch('http://localhost:3001/orders')
-      .then(response => console.log(response))
+    api.get('/orders')
+      .then(({ data }) => {
+        setOrders(data)
+        console.log(data)
+      })
   }
 
+  function changeStatusInProduction(OrderId: string) {
+    api.patch(`/orders/${OrderId}`, {
+      "status": "IN_PRODUCTION"
+    })
+    setAtualize(!atualize);
+  }
 
-  const orders: Order[] = [
-    {
-      _id: '6372e48cbcd195b0d3d0f7f3',
-      table: '123',
-      status: 'WAITING',
-      products: [
-        {
-          product: {
-            name: 'Pizza quatro queijos',
-            imagePath: '1668472896991-quatro-queijos.png',
-            price: 40,
-          },
-          quantity: 3,
-          _id: '6372e48cbcd195b0d3d0f7f4'
-        },
-        {
-          product: {
-            name: 'Coca cola',
-            imagePath: '1668473462705-coca-cola.png',
-            price: 7,
-          },
-          quantity: 2,
-          _id: '6372e48cbcd195b0d3d0f7f5'
-        }
-      ],
-    }
-  ]
+  function changeStatusDone(OrderId: string) {
+    api.patch(`/orders/${OrderId}`, {
+      "status": "DONE"
+    })
+    setAtualize(!atualize);
+  }
+
 
   return (
     <Container>
       <OrdersBoard
         title="Fila de espera"
         icon="🕑"
-        orders={orders}
+        orders={orders.filter((order) => order.status === 'WAITING')}
+        getOrders={getOrders}
+        changeStatusInProduction={changeStatusInProduction}
+        changeStatusDone={changeStatusDone}
       />
       <OrdersBoard
         title="Em produção"
         icon="👩‍🍳"
-        orders={[]}
+        orders={orders.filter((order) => order.status === 'IN_PRODUCTION')}
+        getOrders={getOrders}
+        changeStatusInProduction={changeStatusInProduction}
+        changeStatusDone={changeStatusDone}
       />
       <OrdersBoard
         title="Pronto"
         icon="✅"
-        orders={[]}
+        orders={orders.filter((order) => order.status === 'DONE')}
+        getOrders={getOrders}
+        changeStatusInProduction={changeStatusInProduction}
+        changeStatusDone={changeStatusDone}
       />
     </Container>
   )

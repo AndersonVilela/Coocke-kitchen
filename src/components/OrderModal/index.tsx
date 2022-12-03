@@ -2,14 +2,18 @@ import { Actions, ModalBody, OrderDetails, Overley } from "./styles";
 import Close from '../../assets/images/close-icon.svg';
 import { Order } from "../../types/Oder";
 import { formatCurrency } from "../../utils/formatCurrency";
+import { api } from "../../utils/api";
 
 interface OderModalProps {
   visible: boolean;
   order: Order | null;
   handleCloseModal: () => void;
+  getOrders: () => void;
+  changeStatusInProduction: (OrderId: string) => void;
+  changeStatusDone: (OrderId: string) => void;
 }
 
-export function OrderModal({ visible, order, handleCloseModal }: OderModalProps) {
+export function OrderModal({ visible, order, handleCloseModal, getOrders, changeStatusInProduction, changeStatusDone }: OderModalProps) {
 
   if (!visible || !order) {
     return null;
@@ -50,7 +54,7 @@ export function OrderModal({ visible, order, handleCloseModal }: OderModalProps)
           <div className="item">
             {order.products.map(({ _id, product, quantity }) => (
               <div className="product_details" key={_id}>
-                <img src="http://lorempixel.com.br/50/50" alt={product.name} width="48" height="28.51" />
+                <img src={`http://localhost:3001/uploads/${product.imagePath}`} alt={product.name} width="48" height="28.51" />
 
                 <span>{quantity}x</span>
                 <div>
@@ -67,7 +71,19 @@ export function OrderModal({ visible, order, handleCloseModal }: OderModalProps)
           </div>
         </OrderDetails>
         <Actions>
-          <button type="button" className="changeStatus">
+          <button
+            type="button"
+            className="changeStatus"
+            onClick={() => {
+              if (order.status === 'WAITING') {
+
+                changeStatusInProduction(order._id);
+              }else if (order.status === 'IN_PRODUCTION') {
+                changeStatusDone(order._id);
+              }
+              handleCloseModal();
+            }}
+          >
             <span>
               {order.status === 'WAITING' && '👩‍🍳'}
               {order.status === 'IN_PRODUCTION' && '✅'}
